@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Dreamteck.Splines;
 
 public class LevelTrack : MonoBehaviour {
 
@@ -12,10 +13,12 @@ public class LevelTrack : MonoBehaviour {
     public GameObject snareBlockPrefab;
     public GameObject stomperPrefab;
 
-    public Note[] notes;
+    public MusicNote[] notes;
     private float[] hihatTimes, kickTimes, snareTimes, sTomTimes, lTomTimes;
 
     public Material hiHatMaterial, kickMaterial, snareMaterial, hTomMaterial, lTomMaterial;
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -40,10 +43,13 @@ public class LevelTrack : MonoBehaviour {
 
 
         for (int i = 0; i < notes.Length; i++) {
+            //Need to set the position to a 0-1 scale for use with spline positioner
             float zPos = notes[i].beatTime * SongManager.instance.levelScale + SongManager.instance.levelOffset;
+
+            float angle = trackIndex * 360f / SongManager.instance.CurrentSong.tracks.Length;
             Vector3 newBlockPosition = new Vector3(0f, 0f, zPos);
             GameObject newBlock;
-
+            
 
 
             //notes.time starts at 4, which is 12 beats before the first input

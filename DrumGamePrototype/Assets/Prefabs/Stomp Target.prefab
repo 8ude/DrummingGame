@@ -23,6 +23,7 @@ GameObject:
   - component: {fileID: 136542117959933710}
   - component: {fileID: 23614677030796110}
   - component: {fileID: 114478322187697138}
+  - component: {fileID: 114610292141640198}
   m_Layer: 0
   m_Name: Stomp Target
   m_TagString: Untagged
@@ -99,6 +100,83 @@ MonoBehaviour:
     type: 2}
   loseParticles: {fileID: 1882949940680488, guid: 8cddab243d0d345e6b6d244dd2588715,
     type: 2}
+--- !u!114 &114610292141640198
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1338876197894550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0def5156137c6d14082064fa7b5d5247, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _address:
+    _elements: []
+  subscribers: []
+  updateMethod: 0
+  _user: {fileID: 0}
+  _resolution: 1
+  _clipTo: 1
+  _clipFrom: 0
+  _autoUpdate: 1
+  _averageResultVectors: 1
+  _uniformSample: 0
+  _samples: []
+  _clippedSamples: []
+  animClipFrom: 0
+  animClipTo: 1
+  animResolution: 1
+  sampleUser: 0
+  multithreaded: 0
+  buildOnAwake: 0
+  applyDirectionRotation: 1
+  _direction: 1
+  _physicsMode: 0
+  _motion:
+    _offset: {x: 0, y: 0}
+    _rotationOffset: {x: 0, y: 0, z: 0}
+    _baseScale: {x: 1, y: 1, z: 1}
+    customRotation:
+      keys: []
+      _blend: 1
+    customOffset:
+      keys: []
+      _blend: 1
+    applyPositionX: 1
+    applyPositionY: 1
+    applyPositionZ: 1
+    direction: 1
+    applyRotationX: 1
+    applyRotationY: 1
+    applyRotationZ: 1
+    applyScaleX: 0
+    applyScaleY: 0
+    applyScaleZ: 0
+    targetUser: {fileID: 0}
+  triggers_old: []
+  triggers: []
+  _customRotations:
+    keys: []
+    _blend: 1
+  _customOffsets:
+    keys: []
+    _blend: 1
+  targetRigidbody: {fileID: 0}
+  targetRigidbody2D: {fileID: 0}
+  targetTransform: {fileID: 4228726793774502}
+  _result:
+    position: {x: 0, y: 0, z: 0}
+    normal: {x: 0, y: 1, z: 0}
+    direction: {x: 0, y: 0, z: 1}
+    color: {r: 1, g: 1, b: 1, a: 1}
+    size: 1
+    percent: 0
+  _applyTransform: {fileID: 0}
+  _targetObject: {fileID: 1338876197894550}
+  _position: 0
+  animPosition: 0
+  _mode: 0
 --- !u!136 &136542117959933710
 CapsuleCollider:
   m_ObjectHideFlags: 1

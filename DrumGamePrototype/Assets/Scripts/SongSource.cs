@@ -11,7 +11,7 @@ public class Head
 }
 
 [System.Serializable]
-public class Note
+public class MusicNote
 {
 	public string name;
 	public int midi;
@@ -34,7 +34,7 @@ public class Track
 	public string name;
 	public int channelNumber;
 	public bool isPercussion;
-	public Note[] notes;
+	public MusicNote[] notes;
 }
 
 [System.Serializable]

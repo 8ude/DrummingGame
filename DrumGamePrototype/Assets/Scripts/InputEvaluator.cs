@@ -141,7 +141,7 @@ public class InputEvaluator : MonoBehaviour {
 
     public void EvaluateWindow(PlayerController.DrumTriggerPress<bool> triggersPressed, PlayerController.DrumTriggerPress<bool> triggersRequired) {
 
-        foreach (Note note in songManager.currentNotes) {
+        foreach (MusicNote note in songManager.currentNotes) {
             //There is a better way to do this... right now having a seperate
             //list for the "notes" that is decoupled from the triggersRequired class
             //cueing the notes into a list based on their associated times, and connecting them
