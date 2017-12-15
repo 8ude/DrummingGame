@@ -58,7 +58,6 @@ public class InputEvaluator : MonoBehaviour {
         }
         if (withinWindow && currentDSPTime >= nextBeatDSPTime + (float)Clock.Instance.SixteenthLength()) {
             //At window End
-            Debug.Log("beat window end");
             withinWindow = false;
 
             //Evaluate our inputs
@@ -147,7 +146,7 @@ public class InputEvaluator : MonoBehaviour {
             //cueing the notes into a list based on their associated times, and connecting them
             //to the associated input required via the note names... ugh
 
-            if (triggersRequired != null) {
+            if (triggersRequired != null && note.go != null) {
                 if (note.name == "F#2" && triggersRequired[PlayerController.drumTriggers.HiHat]) {
                     if (triggersPressed[PlayerController.drumTriggers.HiHat]) {
                         Debug.Log("hi hat success!");

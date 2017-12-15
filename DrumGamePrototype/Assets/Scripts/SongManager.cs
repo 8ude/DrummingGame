@@ -4,7 +4,6 @@ using UnityEngine;
 using DG.Tweening;
 using Beat;
 
-//Modifying this for Drum Rhythm Game
 
 public class SongManager : MonoBehaviour {
 
@@ -38,7 +37,7 @@ public class SongManager : MonoBehaviour {
     private float delay;
     private int posCount;
 
-    public float timeScale = 2f;
+    public float timeScale = 1f;
     public float levelOffset = 2f;
 
     private bool isGameOver = false;
@@ -46,7 +45,21 @@ public class SongManager : MonoBehaviour {
 
     private float endWaitTime = 2f;
 
+    public float tubeRadius = 5f;
+
+    float numLoops;
+    public float NumLoops {
+        get {
+            return numLoops;
+        }
+    }
+
     private GameObject player;
+    public GameObject PlayerObject {
+        get {
+            return player;
+        }
+    }
 
     Song currentSong;
 
@@ -104,6 +117,7 @@ public class SongManager : MonoBehaviour {
         }
         levelParent = GameObject.FindWithTag("Level").GetComponent<LevelParent>();
         PrepareData("testdrums");
+        numLoops = 0f;
     }
 
     void Start() {
@@ -130,11 +144,10 @@ public class SongManager : MonoBehaviour {
             for (int i = 0; i < currentSong.tracks.Length; i++) {
                 //go through each track first
                 for (int j = 0; j < currentSong.tracks[i].notes.Length; j++) {
-                    //Debug.Log("i = " + i + " j = " + j);
 
                     //this will convert the note time from seconds to beats
                     currentSong.tracks[i].notes[j].beatTime = currentSong.tracks[i].notes[j].time * currentSong.header.bpm / 60f;
-                    // assuming 4/4 time for now
+                    //assuming 4/4 time for now
                     int measure = Mathf.FloorToInt(currentSong.tracks[i].notes[j].beatTime / 4f);
                     int beat = Mathf.FloorToInt(currentSong.tracks[i].notes[j].beatTime - (measure * 4));
                     int tick = Mathf.FloorToInt((currentSong.tracks[i].notes[j].beatTime - (measure * 4) - beat) * 96);
@@ -148,8 +161,6 @@ public class SongManager : MonoBehaviour {
 
 
         Debug.Log("last mbt = " + lastNote.mbtValue.ToString());
-
-
 
     }
 
@@ -200,7 +211,6 @@ public class SongManager : MonoBehaviour {
                         break;
                     case "F#2":
                         triggersRequired[PlayerController.drumTriggers.HiHat] = true;
-
                         //hi hat
                         break;
                     case "A2":
@@ -210,6 +220,12 @@ public class SongManager : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public void RepeatLoop() {
+        Debug.Log("repeatLoop");
+        currentBeat = 0;
+        numLoops += 1f;
     }
 
 }

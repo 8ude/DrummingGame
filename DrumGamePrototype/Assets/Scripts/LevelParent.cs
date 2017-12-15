@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Beat;
+using Dreamteck.Splines;
 
 public class LevelParent : MonoBehaviour {
 
     [SerializeField] int numTracks;
     [SerializeField] float cylinderRadius;
 
-
+    [SerializeField] SplineComputer sComputer;
 
     public bool gameOver;
 
@@ -60,8 +61,9 @@ public class LevelParent : MonoBehaviour {
             GameObject newTrack = Instantiate(trackPlanePrefab, Vector3.zero, Quaternion.identity);
 
             //Fill track with notes, assign those notes to game objects
-            newTrack.GetComponent<LevelTrack>().PropogateTrack(SongManager.instance.CurrentSong.tracks[i]);
             newTrack.GetComponent<LevelTrack>().trackIndex = i;
+            newTrack.GetComponent<LevelTrack>().PropogateTrack(SongManager.instance.CurrentSong.tracks[i], sComputer);
+
 
             newTrack.transform.Rotate(- Vector3.forward * 360f * i / numTracks);
             newTrack.transform.position = origPos;
@@ -82,12 +84,10 @@ public class LevelParent : MonoBehaviour {
         nextMoveTime = AudioSettings.dspTime + Clock.Instance.StartDelay + 0.25f;
         prevMoveTime = nextMoveTime;
 
-        //Debug.Log("what the fuck" + -1f * cylinderRadius);
         transform.position = new Vector3(0f, -1f * cylinderRadius, 0f);
 
         endZPosition = -(SongManager.instance.BeatOfLastNote - SongManager.instance.levelOffset) * levelScale;
-        Debug.Log(endZPosition);
-
+       
     }
 
 
@@ -102,7 +102,7 @@ public class LevelParent : MonoBehaviour {
                 return;
             }
             else {
-                ContinuousMove();
+                //ContinuousMove();
             }
         }
         else if (AudioSettings.dspTime >= nextMoveTime) {
@@ -137,22 +137,23 @@ public class LevelParent : MonoBehaviour {
 
     public void RotateRight() {
         //StartCoroutine(RotateLevelRight(Clock.Instance.SixteenthLength()));
-        transform.DOLocalRotate(new Vector3(transform.rotation.x, transform.rotation.y, currentRotation + rotationAngle), Clock.Instance.SixteenthLength());
-        currentRotation += rotationAngle;
+        //transform.DOLocalRotate(new Vector3(transform.rotation.x, transform.rotation.y, currentRotation + rotationAngle), Clock.Instance.SixteenthLength());
+        //currentRotation += rotationAngle;
         activeTrackIndex++;
         if (activeTrackIndex >= numTracks) {
             activeTrackIndex = activeTrackIndex % numTracks;
 
         } 
         activeTrack = tracks[activeTrackIndex].GetComponent<LevelTrack>();
-        Debug.Log("activeTrackIndex" + activeTrackIndex);
-        Debug.Log("trackIndex from instantiation" + activeTrack.trackIndex);
+
+        Debug.Log(activeTrackIndex);
+
     }
 
     public void RotateLeft() {
         //StartCoroutine(RotateLevelLeft(Clock.Instance.SixteenthLength()));
-        transform.DOLocalRotate(new Vector3(transform.rotation.x, transform.rotation.y, currentRotation - rotationAngle), Clock.Instance.SixteenthLength());
-        currentRotation -= rotationAngle;
+        //transform.DOLocalRotate(new Vector3(transform.rotation.x, transform.rotation.y, currentRotation - rotationAngle), Clock.Instance.SixteenthLength());
+        //currentRotation -= rotationAngle;
 
         activeTrackIndex--;
         if (activeTrackIndex < 0) {

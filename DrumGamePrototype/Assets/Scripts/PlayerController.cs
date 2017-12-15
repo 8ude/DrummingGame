@@ -4,16 +4,27 @@ using System;
 using UnityEngine;
 using DG.Tweening;
 using Beat;
+using Dreamteck.Splines;
 
 public class PlayerController : MonoBehaviour {
 
 
-	private bool gameStarted = false;
+    //Reference to object that controls motion along the track
+    SplineFollower mySplineFollower;
+
+    Transform rotateDummy;
+    float dummyCurrentRotation;
+    float rotationAngle;
+
+    [SerializeField]Transform meshChild;
+    float meshChildOrigYScale;
 
     public InputEvaluator inputEvaluator;
 
     public float returnToMiddleTime;
     float returnTimer;
+
+    float numLoops;
 
     public GameObject burstParticle;
     public GameObject destroyParticle;
@@ -35,11 +46,10 @@ public class PlayerController : MonoBehaviour {
     public Vector3 startPos;
     double nextEigthCue;
 
-    bool returning;
-
     public GameObject level;
     LevelParent levelParent;
 
+    //Player input enums
     public enum drumTriggers { Kick, Snare, LowTom, HiTom, HiHat };
 
 
@@ -68,6 +78,22 @@ public class PlayerController : MonoBehaviour {
     double nextBeat;
 
     void Awake() {
+        numLoops = 0f;
+
+        meshChildOrigYScale = meshChild.localScale.y;
+
+        rotateDummy = transform.parent;
+
+
+        //Subscribe to onEndReached event
+        //TODO - unsubscribe when switching paths
+        mySplineFollower = transform.root.GetComponent<SplineFollower>();
+
+
+
+        dummyCurrentRotation = 0f;
+        rotationAngle = 360f / SongManager.instance.CurrentSong.tracks.Length;
+
         level = GameObject.FindWithTag("Level");
         levelParent = level.GetComponent<LevelParent>();
         songManager = SongManager.instance;
@@ -77,7 +103,10 @@ public class PlayerController : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        returning = false;
+
+        mySplineFollower.onEndReached += OnEndReached;
+        mySplineFollower.onBeginningReached += OnBeginningReached;
+
         burstCooldown = 0f;
         jumpCooldown = 0f;
         diveCooldown = 0f;
@@ -94,6 +123,16 @@ public class PlayerController : MonoBehaviour {
         leftCoolDown += Time.fixedDeltaTime;
         rightCoolDown += Time.fixedDeltaTime;
 
+        if (Clock.Instance.Time >= 0d) {
+            if(((Clock.Instance.Time - (SongManager.instance.LastNoteTime * SongManager.instance.NumLoops)) / (double)SongManager.instance.LastNoteTime) >= 1.0d) {
+                OnEndReached();
+            }
+            transform.root.GetComponent<SplineFollower>().SetPercent(
+                (double)((Clock.Instance.Time - (SongManager.instance.LastNoteTime * SongManager.instance.NumLoops)) / (double)SongManager.instance.LastNoteTime));
+        } 
+
+
+
 	}
 
 
@@ -101,11 +140,20 @@ public class PlayerController : MonoBehaviour {
         if (Input.GetButtonDown("drum_far_right") && rightCoolDown >= Clock.Instance.SixteenthLength()){
             Debug.Log("drum_far_right");
             transform.DOKill();
+            //Start a sequence of shifting right;
+
+            /*
             Sequence DashRightSequence = DOTween.Sequence();
-            DashRightSequence.Append(transform.DOMoveX(dashRightDistance, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
+            DashRightSequence.Append(meshChild.DOLocalMoveX(dashRightDistance, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
             DashRightSequence.AppendInterval(Clock.Instance.SixteenthLength());
-            DashRightSequence.Append(transform.DOMoveX(0f, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
+            DashRightSequence.Append(meshChild.DOLocalMoveX(0f, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
             DashRightSequence.Play();
+            */
+
+            //Rotate Around the spline
+            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, dummyCurrentRotation - rotationAngle);
+            dummyCurrentRotation -= rotationAngle;
+
             mySource.PlayOneShot(hTomSound);
 
             triggersPressedThisFrame[drumTriggers.HiTom] = true;
@@ -127,9 +175,9 @@ public class PlayerController : MonoBehaviour {
 
             transform.DOKill();
             Sequence jumpSequence = DOTween.Sequence();
-            jumpSequence.Append(transform.DOMoveY(jumpHeight, Clock.Instance.SixteenthLength()).SetEase(Ease.OutCubic));
+            jumpSequence.Append(meshChild.DOLocalMoveY(jumpHeight, Clock.Instance.SixteenthLength()).SetEase(Ease.OutCubic));
             jumpSequence.AppendInterval(Clock.Instance.EighthLength());
-            jumpSequence.Append(transform.DOMoveY(neutralHeight, Clock.Instance.EighthLength()).SetEase(Ease.OutQuad));
+            jumpSequence.Append(meshChild.DOLocalMoveY(neutralHeight, Clock.Instance.EighthLength()).SetEase(Ease.OutQuad));
             jumpSequence.Play();
             mySource.PlayOneShot(snareSound);
 
@@ -178,12 +226,22 @@ public class PlayerController : MonoBehaviour {
         if (Input.GetButtonDown("drum_far_left") && leftCoolDown >= Clock.Instance.SixteenthLength()) {
             
             transform.DOKill();
+
             Sequence DashLeftSequence = DOTween.Sequence();
-            DashLeftSequence.Append(transform.DOMoveX(dashLeftDistance, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
+            DashLeftSequence.Append(meshChild.DOLocalMoveX(dashLeftDistance, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
             DashLeftSequence.AppendInterval(Clock.Instance.SixteenthLength());
-            DashLeftSequence.Append(transform.DOMoveX(0f, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
+            DashLeftSequence.Append(meshChild.DOLocalMoveX(0f, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
 
             DashLeftSequence.Play();
+
+            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, dummyCurrentRotation + rotationAngle);
+            dummyCurrentRotation += rotationAngle;
+
+
+            //Rotate Around the spline
+            //rotateDummy.transform.DORotate(new Vector3(0f, 0f, dummyCurrentRotation - rotationAngle), Clock.Instance.SixteenthLength());
+            //dummyCurrentRotation -= rotationAngle;
+
             mySource.PlayOneShot(lTomSound);
 
             triggersPressedThisFrame[drumTriggers.LowTom] = true;
@@ -200,15 +258,17 @@ public class PlayerController : MonoBehaviour {
 		}
         if (Input.GetButtonDown("drum_kick") && diveCooldown >= Clock.Instance.SixteenthLength()) {
 
+
+
             transform.DOKill();
             Sequence smashSequence = DOTween.Sequence();
-            smashSequence.Append(transform.DOMoveY(dropHeight, Clock.Instance.SixteenthLength()).SetEase(Ease.OutExpo));
+            smashSequence.Append(meshChild.DOLocalMoveY(dropHeight, Clock.Instance.SixteenthLength()).SetEase(Ease.OutExpo));
             Camera.main.DOShakePosition(0.2f, 1f, 200, 90f, true);
-            smashSequence.Append(transform.DOMoveY(neutralHeight, Clock.Instance.ThirtySecondLength()).SetEase(Ease.OutBounce));
-            smashSequence.Append(transform.DOScaleY(0.2f, Clock.Instance.SixteenthLength()));
-            smashSequence.Append(transform.DOScaleY(1f, Clock.Instance.SixteenthLength()).SetEase(Ease.OutBounce));
+            smashSequence.Append(meshChild.DOLocalMoveY(neutralHeight, Clock.Instance.ThirtySecondLength()).SetEase(Ease.OutBounce));
+            smashSequence.Append(meshChild.DOScaleY(0.2f * meshChildOrigYScale, Clock.Instance.SixteenthLength()));
+            smashSequence.Append(meshChild.DOScaleY(1f * meshChildOrigYScale, Clock.Instance.SixteenthLength()).SetEase(Ease.OutBounce));
 
-            smashSequence.Append(transform.DOShakeScale(0.2f, 1f, 20, 150f, false));
+            smashSequence.Append(meshChild.DOShakeScale(0.2f, 1f, 20, 150f, false));
             smashSequence.Play();
             mySource.PlayOneShot(kickSound);
 
@@ -226,5 +286,18 @@ public class PlayerController : MonoBehaviour {
 
     public void ResetScale() {
         transform.localScale = new Vector3(1f, 1f, 1f);
+    }
+
+    public void SwitchTracks() {
+        
+    }
+
+    void OnEndReached() {
+        //Debug.Log("what the fuck");
+        SongManager.instance.RepeatLoop();
+    }
+
+    void OnBeginningReached() {
+        Debug.Log("sjdfjf");
     }
 }
