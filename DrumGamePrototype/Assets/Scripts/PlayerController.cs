@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour {
     //Reference to object that controls motion along the track
     SplineFollower mySplineFollower;
 
+    bool isRotating;
+
     Transform rotateDummy;
     float dummyCurrentRotation;
     float rotationAngle;
@@ -104,6 +106,8 @@ public class PlayerController : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+        isRotating = false;
+
         mySplineFollower.onEndReached += OnEndReached;
         mySplineFollower.onBeginningReached += OnBeginningReached;
 
@@ -137,22 +141,21 @@ public class PlayerController : MonoBehaviour {
 
 
     public void ProcessInputs() {
-        if (Input.GetButtonDown("drum_far_right") && rightCoolDown >= Clock.Instance.SixteenthLength()){
+        if (Input.GetButtonDown("drum_far_right") && rightCoolDown >= Clock.Instance.SixteenthLength() && !isRotating){
             Debug.Log("drum_far_right");
             transform.DOKill();
             //Start a sequence of shifting right;
 
-            /*
+
             Sequence DashRightSequence = DOTween.Sequence();
             DashRightSequence.Append(meshChild.DOLocalMoveX(dashRightDistance, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
             DashRightSequence.AppendInterval(Clock.Instance.SixteenthLength());
             DashRightSequence.Append(meshChild.DOLocalMoveX(0f, Clock.Instance.ThirtySecondLength()).SetEase(Ease.InFlash));
             DashRightSequence.Play();
-            */
+
 
             //Rotate Around the spline
-            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, dummyCurrentRotation - rotationAngle);
-            dummyCurrentRotation -= rotationAngle;
+            StartCoroutine(RotateDummyClockwise(rotationAngle));
 
             mySource.PlayOneShot(hTomSound);
 
@@ -223,7 +226,7 @@ public class PlayerController : MonoBehaviour {
 			
 			Debug.Log("drum_left");
 		}
-        if (Input.GetButtonDown("drum_far_left") && leftCoolDown >= Clock.Instance.SixteenthLength()) {
+        if (Input.GetButtonDown("drum_far_left") && leftCoolDown >= Clock.Instance.SixteenthLength() && !isRotating) {
             
             transform.DOKill();
 
@@ -234,8 +237,9 @@ public class PlayerController : MonoBehaviour {
 
             DashLeftSequence.Play();
 
-            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, dummyCurrentRotation + rotationAngle);
-            dummyCurrentRotation += rotationAngle;
+            StartCoroutine(RotateDummyCounterClockwise(rotationAngle));
+            //transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, dummyCurrentRotation + rotationAngle);
+            //dummyCurrentRotation += rotationAngle;
 
 
             //Rotate Around the spline
@@ -293,11 +297,57 @@ public class PlayerController : MonoBehaviour {
     }
 
     void OnEndReached() {
-        //Debug.Log("what the fuck");
+
         SongManager.instance.RepeatLoop();
     }
 
     void OnBeginningReached() {
-        Debug.Log("sjdfjf");
+        
     }
+
+
+
+    IEnumerator RotateDummyCounterClockwise (float angle) {
+
+        Vector3 targetRotation = new Vector3(0f, 0f, dummyCurrentRotation + angle);
+
+        while (transform.root.GetComponent<SplineFollower>().motion.rotationOffset.z <= dummyCurrentRotation + angle) {
+            isRotating = true;
+
+
+            float tempZRotation = transform.root.GetComponent<SplineFollower>().motion.rotationOffset.z;
+
+            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, tempZRotation + (angle * Time.deltaTime * 8f));
+
+            yield return null;
+            
+        }
+
+        transform.root.GetComponent<SplineFollower>().motion.rotationOffset = targetRotation;
+        dummyCurrentRotation = targetRotation.z;
+        isRotating = false;
+
+    }
+
+    IEnumerator RotateDummyClockwise(float angle) {
+        //Debug.Log("rotating clockwise?");
+
+        Vector3 targetRotation = new Vector3(0f, 0f, dummyCurrentRotation - angle);
+
+        while (transform.root.GetComponent<SplineFollower>().motion.rotationOffset.z >= dummyCurrentRotation - angle) {
+            isRotating = true;
+
+            float tempZRotation = transform.root.GetComponent<SplineFollower>().motion.rotationOffset.z;
+
+            transform.root.GetComponent<SplineFollower>().motion.rotationOffset = new Vector3(0, 0, tempZRotation - (angle * Time.deltaTime * 8f));
+
+            yield return null;
+
+        }
+
+        transform.root.GetComponent<SplineFollower>().motion.rotationOffset = targetRotation;
+        dummyCurrentRotation = targetRotation.z;
+        isRotating = false;
+    }
+
 }

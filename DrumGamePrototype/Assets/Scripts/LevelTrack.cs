@@ -60,6 +60,7 @@ public class LevelTrack : MonoBehaviour {
                     //kick
 
                     //top block
+                    /*
                     newBlock = Instantiate(levelPrefab, Vector3.zero, Quaternion.identity);
 
 
@@ -79,10 +80,13 @@ public class LevelTrack : MonoBehaviour {
 
                     newBlock.transform.SetParent(transform);
                     newBlock.GetComponent<Renderer>().material = kickMaterial;
-
+                    */
+                    Vector3 newScale;
+                    SplinePositioner sPositioner;
                     //stomp pad (connected to evaluator)
                     ///Vector3 stompPos = new Vector3(newBlock.transform.position.x, -0.7f, zPos);
                     GameObject newStomp = Instantiate(stomperPrefab, Vector3.zero, Quaternion.identity);
+                    newStomp.transform.localScale = new Vector3(2f, 1f, 2f);
                     SplinePositioner stompPositioner = newStomp.GetComponent<SplinePositioner>();
                     stompPositioner.computer = splineComp;
                     stompPositioner.motion.offset = new Vector2(Mathf.Sin(angle) * SongManager.instance.tubeRadius, Mathf.Cos(angle) * SongManager.instance.tubeRadius);
@@ -94,10 +98,11 @@ public class LevelTrack : MonoBehaviour {
 
                     break;
                 case "D2":
-                    //snare
+                    //SNARE OBJECT
+
                     newBlock = Instantiate(snareBlockPrefab, Vector3.zero, Quaternion.identity);
                     //newPos = new Vector3(newBlock.transform.position.x, 0f, zPos);
-                    newScale = new Vector3(4f, notes[i].velocity * 2f, 0.75f);
+                    newScale = new Vector3(4f, notes[i].velocity * 3f, 1.25f);
                     //newBlock.transform.position = newPos;
                     newBlock.transform.localScale = newScale;
 
@@ -116,6 +121,7 @@ public class LevelTrack : MonoBehaviour {
                 case "F2":
                     //low tom, doesn't work on current controller
 
+                    /*
                     newBlock = Instantiate(levelPrefab, Vector3.zero, Quaternion.identity);
                     //newPos = new Vector3(-2.5f, 0f, zPos);
                     newScale = new Vector3(2f, 5f, 1f);
@@ -131,10 +137,12 @@ public class LevelTrack : MonoBehaviour {
                     newBlock.transform.SetParent(transform);
                     newBlock.GetComponent<Renderer>().material = lTomMaterial;
                     notes[i].go = newBlock;
+                    */
 
 
                     break;
                 case "F#2":
+                    /*
                     newBlock = Instantiate(levelPrefab, Vector3.zero, Quaternion.identity);
                     //newPos = new Vector3(0f, 0f, zPos);
                     newScale = new Vector3(3f, 0.5f, 0.5f);
@@ -152,8 +160,12 @@ public class LevelTrack : MonoBehaviour {
                     newBlock.GetComponent<Renderer>().material = hiHatMaterial;
                     notes[i].go = newBlock;
                     //hi hat
+                    */
                     break;
+
                 case "A2":
+
+                    /*
                     newBlock = Instantiate(levelPrefab, Vector3.zero, Quaternion.identity);
                     //newPos = new Vector3(0f, 0f, zPos);
                     newScale = new Vector3(3f, 5f, 0.75f);
@@ -170,6 +182,7 @@ public class LevelTrack : MonoBehaviour {
                     newBlock.GetComponent<Renderer>().material = hTomMaterial;
                     notes[i].go = newBlock;
                     //hi tom
+                    */
                     break;
             }
         }
